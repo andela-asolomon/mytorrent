@@ -1,0 +1,9 @@
+html {
+  width: 400px !important;
+  /*background:#C1C1C1;*/
+}
+
+.row .col {
+  float: none !important;
+}
+

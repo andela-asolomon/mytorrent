@@ -1,0 +1,15 @@
+{
+  "name": "Top Torrent Movies",
+  "version": "0.1",
+  "description": "Getting top torrent movies from all around the world",
+  "icons": {
+    "128": "images/icon.svg",
+    "48": "images/icon.svg",
+    "16": "images/icon.svg"
+  },
+  "browser_action": {
+    "default_icon": "images/icon.svg",
+    "default_popup": "popup.html"
+  },
+  "manifest_version": 2
+}
