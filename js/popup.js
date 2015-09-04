@@ -50,7 +50,7 @@ angular.module('MyTorrent', [])
 
         var object = {};
         for (var i = 0; i < arr.length; i++) {
-          if (arr[i].imdbid === "none" && arr[i] === " ") {
+          if (arr[i].imdbid === "none" || arr[i] === " ") {
             return;
           } else {
             fetchDataFromIMDB(arr[i]);
