@@ -5,32 +5,6 @@
 */
 angular.module('MyTorrent', [])
   .controller('TorrentCtrl', ['$scope', '$http', function ($scope, $http) {
-
-      var opts = {
-        lines: 13 // The number of lines to draw
-      , length: 28 // The length of each line
-      , width: 14 // The line thickness
-      , radius: 42 // The radius of the inner circle
-      , scale: 1 // Scales overall size of the spinner
-      , corners: 1 // Corner roundness (0..1)
-      , color: '#000' // #rgb or #rrggbb or array of colors
-      , opacity: 0.25 // Opacity of the lines
-      , rotate: 0 // The rotation offset
-      , direction: 1 // 1: clockwise, -1: counterclockwise
-      , speed: 1 // Rounds per second
-      , trail: 60 // Afterglow percentage
-      , fps: 20 // Frames per second when using setTimeout() as a fallback for CSS
-      , zIndex: 2e9 // The z-index (defaults to 2000000000)
-      , className: 'spinner' // The CSS class to assign to the spinner
-      , top: '50%' // Top position relative to parent
-      , left: '50%' // Left position relative to parent
-      , shadow: false // Whether to render a shadow
-      , hwaccel: false // Whether to use hardware acceleration
-      , position: 'absolute' // Element positioning
-      }
-      var target = document.getElementById('foo')
-      var spinner = new Spinner(opts).spin(target);
-
       $scope.getMovies = function() {
         $http.get('https://yts.to/api/v2/list_movies.json?sort_by=year&limit=50').
           then(function(response) {
@@ -56,30 +30,60 @@ angular.module('MyTorrent', [])
         $http.get(url)
           .then(function (response) {
 
-            console.log("Response: ", response);
-            var filters = _.findKey(response.data.torrents, { 'sub_category': "Highres Movies", 'uploader_username': 'YIFY' });
-            var result = response.data.torrents[filters];
+            var arr = [];
+            angular.forEach(response.data.torrents, function(val, key) {
+              if (val.seeds >= 500 || val.sub_category === "Highres Movies" && val.imdbid != " ") {
+                arr.push(val);
+              }
+            });
 
-            console.log("Filters: ", filters);
-            console.log("Result: ", result);
-
-            $scope.download = result.torrent_hash;
-
-            var imdbidUrl = "http://www.omdbapi.com/?i=" + result.imdbid + "&plot=short&r=json";
-
-            $http.get(imdbidUrl)
-              .then(function(details) {
-                $scope.imdbResponse = details.data;
-                console.log($scope.imdbResponse);
-              }, function(error) {
-                console.log("Error: ", error);
-              });
+            filterData(arr);
 
           }, function(error) {
-            console.log("Error: ", error);
+            alert(error.data.message);
           })
 
         $scope.search_term = "";
+      }
+
+      function filterData (arr) {
+
+        var object = {};
+        for (var i = 0; i < arr.length; i++) {
+          if (arr[i].imdbid === "none" && arr[i] === " ") {
+            return;
+          } else {
+            fetchDataFromIMDB(arr[i]);
+          }
+        }
+      }
+
+      function fetchDataFromIMDB(arr) {
+
+        $scope.imdbResponse = [];
+        var imdbidUrl = "http://www.omdbapi.com/?i=" + arr.imdbid + "&plot=short&r=json";
+
+        $http.get(imdbidUrl)
+          .then(function(details) {
+
+            details.data["seeds"] = arr.seeds;
+            details.data["magnet"] = arr.magnet_uri;
+            details.data["hash"] = arr.torrent_hash;
+            details.data["size"] = convertSize(arr.size);
+            details.data["leeches"] = arr.leeches;
+
+            $scope.imdbResponse.push(details.data);
+
+          }, function(error) {
+            alert(error.data.message);
+          });
+      }
+
+      function convertSize(size) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (size === 0) return '0 ' + sizes[0];
+        var i = parseInt(Math.floor(Math.log(size) / Math.log(1024)));
+        return Math.round(size / Math.pow(1024, i), 2) + ' ' + sizes[i];
       }
   }])
   .directive('ngSearch', [function () {

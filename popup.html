@@ -10,6 +10,7 @@
   <div class="container" ng-init="getMovies()">
   <h6 ng-if="!data">Loading... </h6>
    <input type="text" placeholder="Search for torrents movies here" ng-model="search_term" ng-search="getSearchQuery()">
+
     <div ng-if="!imdbResponse" class="row" ng-repeat="details in data">
       <div class="col m12">
         <div class="card">
@@ -28,16 +29,20 @@
     </div>
 
     <div ng-if="imdbResponse">
-      <div class="col m12">
+      <div class="col m12" ng-repeat="response in imdbResponse">
         <div class="card">
           <div class="card-image">
-            <img src="{{imdbResponse.Poster}}" height="400">
-            <span class="card-title">{{imdbResponse.Title}}</span>
+            <img src="{{response.Poster}}" height="400">
+            <span class="card-title">{{response.Title}}</span>
           </div>
           <div class="card-content">
-            <span>{{imdbResponse.Plot}}</span> <br>
-            <span> Rating: {{imdbResponse.imdbRating}} / 10 <a target="_blank" href="https://getstrike.net/torrents/api/download/{{download}}.torrent" class="waves-effect waves-light btn red right">Download</a> </span> <br>
-            <span>Genre: {{imdbResponse.Genre}}</span>
+            <span>{{response.Plot}}</span> <br>
+            <span> Rating: {{response.imdbRating}} / 10 <a target="_blank" href="https://getstrike.net/torrents/api/download/{{response.hash}}.torrent" class="waves-effect waves-light btn red right">Download</a> </span> <br>
+            <span>Genre: {{response.Genre}}</span> <br>
+            <span>Year: {{response.Year}}</span> <br>
+            <span>Seeds: {{response.seeds}}</span> <br>
+            <span>Size: {{response.size}}</span>
+
           </div>
         </div>
       </div>
