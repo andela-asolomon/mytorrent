@@ -7,9 +7,22 @@
 </head>
 <body ng-controller="TorrentCtrl">
 
-  <div class="container" ng-init="getMovies()">
-  <h6 ng-if="!data">Loading... </h6>
+<div class="container" ng-init="getMovies()">
+
    <input type="text" placeholder="Search for torrents movies here" ng-model="search_term" ng-search="getSearchQuery()">
+
+   <div class="overlay" ng-if="!loading">
+     <div id="circularG">
+       <div id="circularG_1" class="circularG"></div>
+       <div id="circularG_2" class="circularG"></div>
+       <div id="circularG_3" class="circularG"></div>
+       <div id="circularG_4" class="circularG"></div>
+       <div id="circularG_5" class="circularG"></div>
+       <div id="circularG_6" class="circularG"></div>
+       <div id="circularG_7" class="circularG"></div>
+       <div id="circularG_8" class="circularG"></div>
+     </div>
+   </div>
 
     <div ng-if="!imdbResponse" class="row" ng-repeat="details in data">
       <div class="col m12">
@@ -42,20 +55,17 @@
             <span>Year: {{response.Year}}</span> <br>
             <span>Seeds: {{response.seeds}}</span> <br>
             <span>Size: {{response.size}}</span>
-
           </div>
         </div>
       </div>
     </div>
 
-    </div>
   </div>
 
   <script src="js/jquery-1.11.3.min.js"></script>
   <script src="js/angular.min.js"></script>
   <script src="js/materialize.min.js"></script>
   <script src="js/lodash.min.js"></script>
-  <script src="js/spin.min.js"></script>
   <script src="js/popup.js"></script>
 
 </body>
