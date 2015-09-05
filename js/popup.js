@@ -5,6 +5,8 @@
 */
 angular.module('MyTorrent', [])
   .controller('TorrentCtrl', ['$scope', '$http', function ($scope, $http) {
+      $scope.loading = false;
+
       $scope.getMovies = function() {
         $http.get('https://yts.to/api/v2/list_movies.json?sort_by=year&limit=50').
           then(function(response) {
@@ -16,6 +18,8 @@ angular.module('MyTorrent', [])
             angular.forEach(values, function(val, key) {
              $scope.data.push(val);
             });
+
+            $scope.loading = true;
           }
 
         }, function(error) {
@@ -25,19 +29,25 @@ angular.module('MyTorrent', [])
 
       $scope.getSearchQuery = function() {
 
+        $scope.loading = false;
         var url = "https://getstrike.net/api/v2/torrents/search/?phrase=" + $scope.search_term;
 
         $http.get(url)
           .then(function (response) {
 
-            var arr = [];
-            angular.forEach(response.data.torrents, function(val, key) {
-              if (val.seeds >= 500 || val.sub_category === "Highres Movies" && val.imdbid != " ") {
-                arr.push(val);
-              }
-            });
+            if (response.status === 200) {
+              var arr = [];
+              angular.forEach(response.data.torrents, function(val, key) {
+                if (val.seeds >= 500 || val.sub_category === "Highres Movies" && val.imdbid != " ") {
+                  arr.push(val);
+                }
+              });
 
-            filterData(arr);
+              filterData(arr);
+
+            } else {
+              alert(response.data.message);
+            }
 
           }, function(error) {
             alert(error.data.message);
@@ -66,13 +76,18 @@ angular.module('MyTorrent', [])
         $http.get(imdbidUrl)
           .then(function(details) {
 
-            details.data["seeds"] = arr.seeds;
-            details.data["magnet"] = arr.magnet_uri;
-            details.data["hash"] = arr.torrent_hash;
-            details.data["size"] = convertSize(arr.size);
-            details.data["leeches"] = arr.leeches;
+            if (details.status === 200) {
+              $scope.loading = true;
+              details.data["seeds"] = arr.seeds;
+              details.data["magnet"] = arr.magnet_uri;
+              details.data["hash"] = arr.torrent_hash;
+              details.data["size"] = convertSize(arr.size);
+              details.data["leeches"] = arr.leeches;
 
-            $scope.imdbResponse.push(details.data);
+              $scope.imdbResponse.push(details.data);
+            } else {
+              alert(details.data.message);
+            }
 
           }, function(error) {
             alert(error.data.message);
