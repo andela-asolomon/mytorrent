@@ -24,23 +24,6 @@
      </div>
    </div>
 
-    <div ng-if="!imdbResponse" class="row" ng-repeat="details in data">
-      <div class="col m12">
-        <div class="card">
-          <div class="card-image">
-            <img src="{{details.medium_cover_image}}" height="400">
-            <span class="card-title">{{details.title_long}}</span>
-          </div>
-          <div class="card-content">
-            <span> Rating: {{details.rating}} / 10 <a target="_blank" href="{{details.torrents[0].url}}" class="waves-effect waves-light btn red right">Download</a> </span>
-            <ul ng-repeat="genre in details.genres">
-              <li>{{genre}}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div ng-if="imdbResponse">
       <div class="col m12" ng-repeat="response in imdbResponse">
         <div class="card">

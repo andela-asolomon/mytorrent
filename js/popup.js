@@ -8,33 +8,26 @@ angular.module('MyTorrent', [])
       $scope.loading = false;
 
       $scope.getMovies = function() {
-        $http.get('https://yts.to/api/v2/list_movies.json?sort_by=year&limit=50').
+        $http.get('https://yts.to/api/v2/list_movies.json?sort_by=year&limit=10').
           then(function(response) {
           if (response.status === 200) {
-
             $scope.data = [];
-
             var values = response.data.data.movies;
             angular.forEach(values, function(val, key) {
              $scope.data.push(val);
             });
-
-            $scope.loading = true;
+            filterData($scope.data);
           }
-
         }, function(error) {
           alert("Issues connecting to the server. Check your internet connection or Please try again later.");
         });
       }
 
       $scope.getSearchQuery = function() {
-
         $scope.loading = false;
         var url = "https://getstrike.net/api/v2/torrents/search/?phrase=" + $scope.search_term;
-
         $http.get(url)
           .then(function (response) {
-
             if (response.status === 200) {
               var arr = [];
               angular.forEach(response.data.torrents, function(val, key) {
@@ -42,23 +35,17 @@ angular.module('MyTorrent', [])
                   arr.push(val);
                 }
               });
-
               filterData(arr);
-
             } else {
               alert(response.data.message);
             }
-
           }, function(error) {
             alert(error.data.message);
           })
-
         $scope.search_term = "";
       }
 
       function filterData (arr) {
-
-        var object = {};
         for (var i = 0; i < arr.length; i++) {
           if (arr[i].imdbid === "none" || arr[i] === " ") {
             return;
@@ -69,29 +56,32 @@ angular.module('MyTorrent', [])
       }
 
       function fetchDataFromIMDB(arr) {
-
+        var imdbid;
+        if (arr.imdb_code) {
+          imdbid = arr.imdb_code;
+        } else {
+          imdbid = arr.imdbid;
+        }
         $scope.imdbResponse = [];
-        var imdbidUrl = "http://www.omdbapi.com/?i=" + arr.imdbid + "&plot=short&r=json";
-
+        var imdbidUrl = "http://www.omdbapi.com/?i=" + imdbid  + "&plot=short&r=json";
         $http.get(imdbidUrl)
           .then(function(details) {
-
-            if (details.status === 200) {
-              $scope.loading = true;
-              details.data["seeds"] = arr.seeds;
-              details.data["magnet"] = arr.magnet_uri;
-              details.data["hash"] = arr.torrent_hash;
-              details.data["size"] = convertSize(arr.size);
-              details.data["leeches"] = arr.leeches;
-
-              $scope.imdbResponse.push(details.data);
-            } else {
-              alert(details.data.message);
-            }
-
+            processDetails(details, arr);
           }, function(error) {
             alert(error.data.message);
           });
+      }
+
+      function processDetails(details, arr) {
+        if (details.status === 200) {
+          $scope.loading = true;
+          details.data["seeds"] = arr.seeds || arr.torrents[0].seeds;
+          details.data["hash"] = arr.torrent_hash || arr.torrents[0].hash;
+          details.data["size"] = convertSize(arr.size) || arr.torrents[0].size;
+          $scope.imdbResponse.push(details.data);
+        } else {
+          alert(details.data.message);
+        }
       }
 
       function convertSize(size) {
@@ -108,7 +98,6 @@ angular.module('MyTorrent', [])
             scope.$apply(function() {
               scope.$eval(attrs.ngSearch);
             });
-
             event.preventDefault();
           }
         });
