@@ -8,7 +8,7 @@ angular.module('MyTorrent', [])
       $scope.loading = false;
 
       $scope.getMovies = function() {
-        $http.get('https://yts.to/api/v2/list_movies.json?sort_by=year&limit=10').
+        $http.get('https://yts.ag/api/v2/list_movies.jsonp').
           then(function(response) {
           if (response.status === 200) {
             $scope.data = [];
@@ -76,7 +76,7 @@ angular.module('MyTorrent', [])
         if (details.status === 200) {
           $scope.loading = true;
           details.data["seeds"] = arr.seeds || arr.torrents[0].seeds;
-          details.data["hash"] = arr.torrent_hash || arr.torrents[0].hash;
+          details.data["hash"] = arr.torrent_hash || arr.torrents[0].url;
           details.data["size"] = convertSize(arr.size) || arr.torrents[0].size;
           $scope.imdbResponse.push(details.data);
         } else {
